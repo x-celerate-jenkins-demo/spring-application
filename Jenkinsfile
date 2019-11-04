@@ -4,6 +4,7 @@ pipeline {
             label "xcelerate-spring-${UUID.randomUUID().toString()}"
             defaultContainer "jnlp"
             yamlFile "jenkins-agent.yml"
+            inheritFrom "docker"
         }
     }
     options {
@@ -41,12 +42,12 @@ pipeline {
                 container( 'gradle' ) {
                     sh './gradlew clean assemble'
                 }
-//                container( 'docker' ) {
-//                    script {
-//                        tag = "${env.IMAGE_NAME}:${version}.${env.BUILD_NUMBER}"
-//                        image = docker.build( tag, "-f deployment/Dockerfile --build-arg VERSION=${version}.${env.BUILD_NUMBER} ." )
-//                    }
-//                }
+               container( 'docker' ) {
+                   script {
+                       tag = "${env.IMAGE_NAME}:${version}.${env.BUILD_NUMBER}"
+                       image = docker.build( tag, "-f Dockerfile --build-arg VERSION=${version}.${env.BUILD_NUMBER} ." )
+                   }
+               }
             }
         }
     }

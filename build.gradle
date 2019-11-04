@@ -4,9 +4,15 @@ plugins {
 	id 'java'
 }
 
+ext {
+	env = System.getenv()
+}
+
 group = 'com.inxmail.xcelerate'
-version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
+afterEvaluate {
+	version = "${version}.${env.BUILD_NUMBER}"
+}
 
 repositories {
 	mavenCentral()
