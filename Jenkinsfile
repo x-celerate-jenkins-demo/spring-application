@@ -11,7 +11,7 @@ pipeline {
         buildDiscarder( logRotator( numToKeepStr: '5' ) )
     }
     environment {
-        IMAGE_NAME = "rfy/xcelerate-spring-application"
+        IMAGE_NAME = "rainerfrey/xcelerate-spring-application"
     }
     stages {
         stage( 'Checkout' ) {
@@ -46,6 +46,15 @@ pipeline {
                    script {
                        tag = "${env.IMAGE_NAME}:${version}.${env.BUILD_NUMBER}"
                        image = docker.build( tag, "-f Dockerfile --build-arg VERSION=${version}.${env.BUILD_NUMBER} ." )
+                   }
+               }
+            }
+        }
+        stage( 'Publish' ) {
+            steps {
+               container( 'docker' ) {
+                   script {
+                       image.push()
                    }
                }
             }
