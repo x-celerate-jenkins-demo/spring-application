@@ -59,5 +59,38 @@ pipeline {
                }
             }
         }
+        stage( 'Test Container' ) {
+            agent {
+                kubernetes {
+                    yaml """
+                    apiVersion: v1
+                    kind: Pod
+                    metadata:
+                      namespace: build
+                      labels:
+                        project: x-celerate-spring-application
+                    spec:
+                      containers:
+                        - name: spring-application
+                          image: ${env.IMAGE_NAME}:${version}.${env.BUILD_NUMBER}
+                          env:
+                            - name: SPRING_PROFILES_ACTIVE
+                              value: production
+                          resources:
+                            requests:
+                              memory: "256Mi"
+                              cpu: "100m"
+                            limits:
+                              memory: "512Mi"
+                              cpu: "500m"
+                          
+                    """
+                }
+            }
+            steps {
+                sh "curl -v http://localhost:8080/"
+                containerLog "spring-application"
+            }
+        }
     }
 }
