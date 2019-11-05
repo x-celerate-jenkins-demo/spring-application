@@ -1,7 +1,9 @@
+def parentLabel = "xcelerate-spring-${UUID.randomUUID().toString()}"
+
 pipeline {
     agent {
         kubernetes {
-            label "xcelerate-spring-${UUID.randomUUID().toString()}"
+            label parentLabel
             defaultContainer "jnlp"
             yamlFile "jenkins-agent.yml"
             inheritFrom "docker"
@@ -62,6 +64,8 @@ pipeline {
         stage( 'Test Container' ) {
             agent {
                 kubernetes {
+                    label "xcel-spring-stage-${UUID.randomUUID().toString()}"
+                    inheritFrom parentLabel
                     yaml """
                     apiVersion: v1
                     kind: Pod
