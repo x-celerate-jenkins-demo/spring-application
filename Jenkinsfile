@@ -1,16 +1,19 @@
+def parentLabel = "xcelerate-spring-${UUID.randomUUID().toString()}"
+
 pipeline {
     agent {
         kubernetes {
-            label "xcelerate-spring-${UUID.randomUUID().toString()}"
+            label parentLabel
             defaultContainer "jnlp"
             yamlFile "jenkins-agent.yml"
+            inheritFrom "docker"
         }
     }
     options {
         buildDiscarder( logRotator( numToKeepStr: '5' ) )
     }
     environment {
-        IMAGE_NAME = "rfy/xcelerate-spring-application"
+        IMAGE_NAME = "rainerfrey/xcelerate-spring-application"
     }
     stages {
         stage( 'Checkout' ) {
@@ -41,12 +44,56 @@ pipeline {
                 container( 'gradle' ) {
                     sh './gradlew clean assemble'
                 }
-//                container( 'docker' ) {
-//                    script {
-//                        tag = "${env.IMAGE_NAME}:${version}.${env.BUILD_NUMBER}"
-//                        image = docker.build( tag, "-f deployment/Dockerfile --build-arg VERSION=${version}.${env.BUILD_NUMBER} ." )
-//                    }
-//                }
+               container( 'docker' ) {
+                   script {
+                       tag = "${env.IMAGE_NAME}:${version}.${env.BUILD_NUMBER}"
+                       image = docker.build( tag, "-f Dockerfile --build-arg VERSION=${version}.${env.BUILD_NUMBER} ." )
+                   }
+               }
+            }
+        }
+        stage( 'Publish' ) {
+            steps {
+               container( 'docker' ) {
+                   script {
+                       image.push()
+                   }
+               }
+            }
+        }
+        stage( 'Test Container' ) {
+            agent {
+                kubernetes {
+                    label "xcel-spring-stage-${UUID.randomUUID().toString()}"
+                    inheritFrom parentLabel
+                    yaml """
+                    apiVersion: v1
+                    kind: Pod
+                    metadata:
+                      namespace: build
+                      labels:
+                        project: x-celerate-spring-application
+                    spec:
+                      containers:
+                        - name: spring-application
+                          image: ${env.IMAGE_NAME}:${version}.${env.BUILD_NUMBER}
+                          env:
+                            - name: SPRING_PROFILES_ACTIVE
+                              value: production
+                          resources:
+                            requests:
+                              memory: "256Mi"
+                              cpu: "100m"
+                            limits:
+                              memory: "512Mi"
+                              cpu: "500m"
+                          
+                    """
+                }
+            }
+            steps {
+                sh "curl -v http://localhost:8080/"
+                containerLog "spring-application"
             }
         }
     }
