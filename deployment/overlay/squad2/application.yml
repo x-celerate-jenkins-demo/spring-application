@@ -9,3 +9,9 @@ server:
 info:
   name: ${spring.application.name}
   description: A service for demonstrating CI/CD
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
