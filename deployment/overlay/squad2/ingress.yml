@@ -13,6 +13,6 @@ spec:
               service:
                 name: xcelerate-demo
                 port:
-                  name: https
+                  name: http
             path: /xcelerate-demo
             pathType: Prefix
