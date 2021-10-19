@@ -10,6 +10,7 @@ info:
   name: ${spring.application.name}
   description: A service for demonstrating CI/CD
   namespace: demo-app
+  project: demo
 
 management:
   endpoints:
