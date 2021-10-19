@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: xcelerate-demo
+
+server:
+  servlet:
+    context-path: /${spring.application.name}

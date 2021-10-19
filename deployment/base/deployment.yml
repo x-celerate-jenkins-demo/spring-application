@@ -1,0 +1,47 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: xcelerate-demo
+  name: xcelerate-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: xcelerate-demo
+  template:
+    metadata:
+      labels:
+        app: xcelerate-demo
+    spec:
+      containers:
+        - image: rainerfrey/xcelerate-spring-application:1.0.2
+          name: xcelerate-demo
+          ports:
+            - name: http
+              containerPort: 8080
+          volumeMounts:
+            - name: configuration
+              mountPath: /app/config
+          readinessProbe:
+            httpGet:
+              path: /xcelerate-demo/actuator/health/readiness
+              port: 8080
+          livenessProbe:
+            httpGet:
+              path: /xcelerate-demo/actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 360
+            periodSeconds: 120
+            timeoutSeconds: 5
+          resources:
+            limits:
+              memory: "512Mi"
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: production
+      volumes:
+        - name: configuration
+          configMap:
+            name: xcelerate-demo-config
