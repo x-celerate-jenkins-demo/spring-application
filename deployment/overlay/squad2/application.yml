@@ -11,6 +11,7 @@ info:
   description: A service for demonstrating CI/CD
   namespace: demo-app
   project: demo
+  foo: foo
 
 management:
   endpoints:
