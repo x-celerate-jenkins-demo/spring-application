@@ -12,6 +12,7 @@ info:
   namespace: demo-app
   project: demo
   foo: foo
+  bar: bar
 
 management:
   endpoints:
