@@ -23,7 +23,7 @@ spec:
             name: "cel"
           params:
             - name: "filter"
-              value: "body.ref == 'refs/heads/tekton"
+              value: "body.ref == 'refs/heads/tekton'"
       bindings:
         - ref: demo-app-trigger-binding
       template:
