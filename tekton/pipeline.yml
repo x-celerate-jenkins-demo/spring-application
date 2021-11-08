@@ -1,0 +1,40 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: build-demo-app
+spec:
+  params:
+    - name: git-revision
+      default: tekton
+    - name: git-url
+      default: https://github.com/x-celerate-jenkins-demo/spring-application.git
+  workspaces:
+    - name: source
+      description: The workspace containing the application source
+  tasks:
+    - name: checkout
+      taskRef:
+        name: git-clone
+      params:
+        - name: url
+          value: "$(params.git-url)"
+        - name: revision
+          value: "$(params.git-revision)"
+      workspaces:
+        - name: output
+          workspace: source
+    - name: deploy
+      taskRef:
+        name: kubernetes-actions
+      params:
+        - name: script
+          value: |
+            kustomize build /workspace/manifest-dir/deployment/overlay/squad2 | kubectl apply -f -
+        - name: image
+          value: squad2test.azurecr.io/tools/kubectl-kustomize:tekton
+      workspaces:
+        - name: manifest-dir
+          workspace: source
+      runAfter:
+        - checkout
