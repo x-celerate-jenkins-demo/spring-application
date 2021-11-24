@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: xcelerate-demo
+  namespace: argocd
+spec:
+  project: default
+  source:
+    path: deployment/overlay/squad2
+    repoURL: https://github.com/x-celerate-jenkins-demo/spring-application.git
+    targetRevision: argocd
+  destination:
+    namespace: demo-app
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    - PruneLast=true
