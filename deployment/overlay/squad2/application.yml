@@ -13,6 +13,7 @@ info:
   project: demo
   foo: foo
   bar: bar
+  dev: dev
 
 management:
   endpoints:
